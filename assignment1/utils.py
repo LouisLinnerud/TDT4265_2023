@@ -2,6 +2,7 @@ from typing import Generator
 import mnist
 import numpy as np
 import matplotlib.pyplot as plt
+import random
 
 
 def batch_loader(
@@ -24,7 +25,12 @@ def batch_loader(
         num_batches = int(np.ceil(len(X) / batch_size))
     indices = list(range(len(X)))
 
-    # TODO (task 2e) implement dataset shuffling here.
+    if shuffle:  # Solution found from https://pynative.com/python-random-shuffle/#h-shuffle-two-lists-at-once-with-same-order
+        mapIndexPosition = list(zip(X, Y))
+        random.shuffle(mapIndexPosition)
+        X, Y = zip(*mapIndexPosition)
+        X = np.array(X)
+        Y = np.array(Y)
 
     for i in range(num_batches):
         # select a set of indices for each batch of samples

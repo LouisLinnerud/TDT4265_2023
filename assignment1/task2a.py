@@ -1,3 +1,4 @@
+import time
 import numpy as np
 import utils
 np.random.seed(1)
@@ -13,6 +14,8 @@ def pre_process_images(X: np.ndarray):
     assert X.shape[1] == 784,\
         f"X.shape[1]: {X.shape[1]}, should be 784"
     # TODO implement this function (Task 2a)
+    X = X/(255/2.) - 1
+    X = np.array([np.append(x, 1) for x in X])
     return X
 
 
@@ -24,18 +27,23 @@ def cross_entropy_loss(targets: np.ndarray, outputs: np.ndarray) -> float:
     Returns:
         Cross entropy error (float)
     """
-    # TODO implement this function (Task 2a)
+    N = len(targets)
+    loss = 1/N*np.sum(-(targets*np.log(outputs) +
+                      (1 - targets)*np.log(1 - outputs)))
+    # print(loss)
+
     assert targets.shape == outputs.shape,\
         f"Targets shape: {targets.shape}, outputs: {outputs.shape}"
-    return 0
+    return loss
 
 
 class BinaryModel:
 
     def __init__(self):
         # Define number of input nodes
-        self.I = None
+        self.I = 785
         self.w = np.zeros((self.I, 1))
+        print("Weight shape =", self.w.shape)
         self.grad = None
 
     def forward(self, X: np.ndarray) -> np.ndarray:
@@ -46,7 +54,8 @@ class BinaryModel:
             y: output of model with shape [batch size, 1]
         """
         # TODO implement this function (Task 2a)
-        return None
+
+        return 1./(1. + np.exp(-np.dot(X, self.w)))
 
     def backward(self, X: np.ndarray, outputs: np.ndarray, targets: np.ndarray) -> None:
         """
@@ -57,9 +66,9 @@ class BinaryModel:
             targets: labels/targets of each image of shape: [batch size, 1]
         """
         # TODO implement this function (Task 2a)
+        self.grad = -np.dot(X.T, targets-outputs) / X.shape[0]
         assert targets.shape == outputs.shape,\
             f"Output shape: {outputs.shape}, targets: {targets.shape}"
-        self.grad = np.zeros_like(self.w)
         assert self.grad.shape == self.w.shape,\
             f"Grad shape: {self.grad.shape}, w: {self.w.shape}"
 
@@ -124,4 +133,7 @@ def main():
 
 
 if __name__ == "__main__":
+    # start = time.time()
     main()
+    # end = time.time()
+    # print('time =', end - start)
