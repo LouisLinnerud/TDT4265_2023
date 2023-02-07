@@ -73,6 +73,10 @@ class BaseTrainer:
         )
 
         global_step = 0
+        validation_losses = []
+        lowest_weight = -1
+        stop = False
+        stop_epoch = -1
         for epoch in range(num_epochs):
             train_loader = utils.batch_loader(
                 self.X_train, self.Y_train, self.batch_size, shuffle=self.shuffle_dataset)
@@ -88,5 +92,25 @@ class BaseTrainer:
                     val_history["loss"][global_step] = val_loss
                     val_history["accuracy"][global_step] = accuracy_val
                     # TODO: Implement early stopping (copy from last assignment)
+                    if not stop:
+                        if len(validation_losses) == 0:  # Only relevant the very first time
+                            validation_losses.append(val_loss)
+                            lowest_weight = self.model.w
+                        else:
+                            if val_loss < validation_losses[0]:
+                                validation_losses = [val_loss]
+                                lowest_weight = self.model.w
+                            else:
+                                validation_losses.append(val_loss)
+                                if len(validation_losses) == 50:
+                                    stop_epoch = epoch
+                                    stop = True
+                                    print(
+                                        f"Early stop found at {stop_epoch}, lowest val_loss = {validation_losses[0]} adding lowest weight to val_history under 'w_min'")
+                                    val_history['w_min'] = lowest_weight
+                                    return train_history, val_history
+
                 global_step += 1
+        # if not 'w_min' in val_history.keys():
+        val_history['w_min'] = self.model.w
         return train_history, val_history
