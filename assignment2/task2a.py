@@ -81,14 +81,21 @@ class SoftmaxModel:
         # such as self.hidden_layer_output = ...
         print('Forward!')
         print('Input shape =', np.shape(X))
-        activation_hidden = 1 / (1 + np.exp(-X.dot(self.ws[0])))
+        self.hidden_z = np.exp(X.dot(self.ws[0]))
+        self.hidden_layer_output = self.sigmoid(self.hidden_z)
         # Activation_hidden is [785, num_neurons_in_hidden]
-        print('hidden shape: ', np.shape(activation_hidden))
+        print('hidden shape: ', np.shape(self.hidden_layer_output))
 
-        z = np.dot(activation_hidden, self.ws[-1])
-        y = np.exp(z)/np.sum(np.exp(z), axis=1, keepdims=True)
+        self.output_z = np.dot(self.hidden_layer_output, self.ws[-1])
+        y = self.softmax(self.output_z)
         print('Output shape', np.shape(y))
         return y
+
+    def sigmoid(self, z: np.ndarray) -> np.ndarray:
+        return 1 / (1 + np.exp(-z))
+
+    def softmax(self, z: np.ndarray) -> np.ndarray:
+        return np.exp(z)/np.sum(np.exp(z), axis=1, keepdims=True)
 
     def backward(self, X: np.ndarray, outputs: np.ndarray,
                  targets: np.ndarray) -> None:
@@ -106,9 +113,22 @@ class SoftmaxModel:
         # A list of gradients.
         # For example, self.grads[0] will be the gradient for the first hidden layer
         self.grads = []
+        # nabla_w = [np.zeros(w.shape()) for w in self.ws]
+        delta_out = -(targets - outputs)
+        delta_hidden = np.dot(
+            delta_out, self.ws[-1].T)*self.softmax_prime(self.hidden_z)
+        print('softmax_prime shape:', np.shape(
+            self.softmax_prime(self.hidden_z)))
+        print('Delta hidden shape:', np.shape(delta_hidden))
+        grad_hidden = X
+        # Update weights w_kj
+
         for grad, w in zip(self.grads, self.ws):
             assert grad.shape == w.shape,\
                 f"Expected the same shape. Grad shape: {grad.shape}, w: {w.shape}."
+
+    def softmax_prime(self, z: np.ndarray) -> np.ndarray:
+        pass
 
     def zero_grad(self) -> None:
         self.grads = [None for i in range(len(self.ws))]
