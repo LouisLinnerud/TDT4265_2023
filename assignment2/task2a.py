@@ -66,7 +66,10 @@ class SoftmaxModel:
         for size in self.neurons_per_layer:
             w_shape = (prev, size)
             print("Initializing weight to shape:", w_shape)
-            w = np.random.uniform(-1, 1, w_shape)
+            if self.use_improved_weight_init:
+                w = np.random.normal(0, 1/np.sqrt(prev), w_shape)
+            else:
+                w = np.random.uniform(-1, 1, w_shape)
             self.ws.append(w)
             prev = size
         self.grads = [None for i in range(len(self.ws))]
@@ -93,7 +96,10 @@ class SoftmaxModel:
             w = self.ws[layerIndex]
             z = activation.dot(w)
             self.zs.append(z)
-            activation = self.sigmoid(z)
+            if self.use_improved_sigmoid:
+                activation = self.improved_sigmoid(z)
+            else:
+                activation = self.sigmoid(z)
             self.activations.append(activation)
         # print('activation shape = ', np.shape(activation))
 
@@ -108,6 +114,13 @@ class SoftmaxModel:
 
     def sigmoid(self, z: np.ndarray) -> np.ndarray:
         return 1 / (1 + np.exp(-z))
+
+    def improved_sigmoid(self, z: np.ndarray) -> np.ndarray:
+        return 1.7159*np.tanh(2./3.*z)
+
+    def improved_sigmoid_prime(self, z: np.ndarray) -> np.ndarray:
+        # See https://www.cuemath.com/calculus/derivative-of-hyperbolic-functions/ for derivative
+        return 1.7159 * 2./3. / (np.cosh(2./3.*z))**2
 
     def sigmoid_prime(self, z: np.ndarray) -> np.ndarray:
         # see https://towardsdatascience.com/derivative-of-the-sigmoid-function-536880cf918e
@@ -137,20 +150,29 @@ class SoftmaxModel:
         # Calculate output error
         delta_k = -(targets - outputs)
         L = self.number_of_layers - 1
-
-        deltas = [[]*L, delta_k]
+        # print('L =', L)
+        deltas = [[] for i in range(L + 1)]
+        deltas[-1] = delta_k
+        # print(len(deltas))
+        # print(deltas)
         # Backpropegate starting from l = L - 1, L - 2, ... 1 (where 0 counts as layer due to indexing in python)
-        for layerIndex in range(1, self.number_of_layers):
-            l = L - layerIndex
-            zl = self.zs[0]
+        for layerIndex in range(L - 1, -1, - 1):
+            # print('L=', L)
+            # print('index =', layerIndex)
+            # l = L - layerIndex
+            # print('l=', l)
+            zl = self.zs[layerIndex]
             # get sigmoid primed of z at the current layer
-            derivative_zl = self.sigmoid_prime(zl)
+            if self.improved_sigmoid:
+                derivative_zl = self.improved_sigmoid_prime(zl)
+            else:
+                derivative_zl = self.sigmoid_prime(zl)
             # print('der shape:', np.shape(derivative_zl))
-            delta_l_pluss_1 = deltas[l + 1]
-            weight_l_pluss_1 = self.ws[l + 1]
+            delta_l_pluss_1 = deltas[layerIndex + 1]
+            weight_l_pluss_1 = self.ws[layerIndex + 1]
             # print(np.shape(delta_l_pluss_1.dot(weight_l_pluss_1.T)))
             delta = (delta_l_pluss_1.dot(weight_l_pluss_1.T)) * derivative_zl
-            deltas[l] = delta
+            deltas[layerIndex] = delta
 
         # Set the gradients
         # Note that the indexing of self.activations includes the input layer, dividing by X.shape[0] to get the average

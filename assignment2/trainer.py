@@ -108,9 +108,11 @@ class BaseTrainer:
                                     print(
                                         f"Early stop found at {stop_epoch}, lowest val_loss = {validation_losses[0]} adding lowest weight to val_history under 'w_min'")
                                     val_history['w_min'] = lowest_weight
+                                    val_history['stop_epoch'] = stop_epoch
                                     return train_history, val_history
 
                 global_step += 1
-        # if not 'w_min' in val_history.keys():
-        val_history['w_min'] = self.model.ws
+        if not 'w_min' in val_history.keys():
+            val_history['w_min'] = self.model.ws
+            val_history['stop_epoch'] = epoch
         return train_history, val_history
