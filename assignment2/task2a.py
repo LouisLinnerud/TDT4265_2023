@@ -4,7 +4,7 @@ import typing
 np.random.seed(1)
 
 
-def pre_process_images(X: np.ndarray, mu: float, sigma: float):
+def pre_process_images(X: np.ndarray, mu: float = 33.55274553571429, sigma: float = 78.87550070784701):
     """
     Args:
         X: images of shape [batch size, 784] in the range (0, 255)
@@ -49,6 +49,8 @@ class SoftmaxModel:
         np.random.seed(1)
         # Define number of input nodes
         self.I = 785
+        self.number_of_layers = len(neurons_per_layer)
+        print('Number of layers =', self.number_of_layers)
         self.use_improved_sigmoid = use_improved_sigmoid
         self.use_relu = use_relu
         self.use_improved_weight_init = use_improved_weight_init
@@ -64,10 +66,12 @@ class SoftmaxModel:
         for size in self.neurons_per_layer:
             w_shape = (prev, size)
             print("Initializing weight to shape:", w_shape)
-            w = np.zeros(w_shape)
+            w = np.random.uniform(-1, 1, w_shape)
             self.ws.append(w)
             prev = size
         self.grads = [None for i in range(len(self.ws))]
+        # print('yes')
+        # [print(np.shape(w)) for w in self.ws]
 
     def forward(self, X: np.ndarray) -> np.ndarray:
         """
@@ -79,20 +83,36 @@ class SoftmaxModel:
         # TODO implement this function (Task 2b)
         # HINT: For performing the backward pass, you can save intermediate activations in variables in the forward pass.
         # such as self.hidden_layer_output = ...
-        print('Forward!')
-        print('Input shape =', np.shape(X))
-        self.hidden_z = np.exp(X.dot(self.ws[0]))
-        self.hidden_layer_output = self.sigmoid(self.hidden_z)
-        # Activation_hidden is [785, num_neurons_in_hidden]
-        print('hidden shape: ', np.shape(self.hidden_layer_output))
 
-        self.output_z = np.dot(self.hidden_layer_output, self.ws[-1])
-        y = self.softmax(self.output_z)
-        print('Output shape', np.shape(y))
-        return y
+        # Execute forward pass for all hidden layers
+        activation = X
+        self.activations = [X]
+        self.zs = []
+        # - 1 since last layers should use softmax, not sigmoid
+        for layerIndex in range(self.number_of_layers - 1):
+            w = self.ws[layerIndex]
+            z = activation.dot(w)
+            self.zs.append(z)
+            activation = self.sigmoid(z)
+            self.activations.append(activation)
+        # print('activation shape = ', np.shape(activation))
+
+        # Fetch weights to final layer
+        w = self.ws[-1]
+        # Calculate zk (z of final layer):
+        zk = activation.dot(w)
+        # Apply softmax to zk to get final activation
+        activation = self.softmax(zk)
+        self.activations.append(activation)
+        return activation
 
     def sigmoid(self, z: np.ndarray) -> np.ndarray:
         return 1 / (1 + np.exp(-z))
+
+    def sigmoid_prime(self, z: np.ndarray) -> np.ndarray:
+        # see https://towardsdatascience.com/derivative-of-the-sigmoid-function-536880cf918e
+        sigma = self.sigmoid(z)
+        return sigma*(1-sigma)
 
     def softmax(self, z: np.ndarray) -> np.ndarray:
         return np.exp(z)/np.sum(np.exp(z), axis=1, keepdims=True)
@@ -113,22 +133,37 @@ class SoftmaxModel:
         # A list of gradients.
         # For example, self.grads[0] will be the gradient for the first hidden layer
         self.grads = []
-        # nabla_w = [np.zeros(w.shape()) for w in self.ws]
-        delta_out = -(targets - outputs)
-        delta_hidden = np.dot(
-            delta_out, self.ws[-1].T)*self.softmax_prime(self.hidden_z)
-        print('softmax_prime shape:', np.shape(
-            self.softmax_prime(self.hidden_z)))
-        print('Delta hidden shape:', np.shape(delta_hidden))
-        grad_hidden = X
-        # Update weights w_kj
 
+        # Calculate output error
+        delta_k = -(targets - outputs)
+        L = self.number_of_layers - 1
+
+        deltas = [[]*L, delta_k]
+        # Backpropegate starting from l = L - 1, L - 2, ... 1 (where 0 counts as layer due to indexing in python)
+        for layerIndex in range(1, self.number_of_layers):
+            l = L - layerIndex
+            zl = self.zs[0]
+            # get sigmoid primed of z at the current layer
+            derivative_zl = self.sigmoid_prime(zl)
+            # print('der shape:', np.shape(derivative_zl))
+            delta_l_pluss_1 = deltas[l + 1]
+            weight_l_pluss_1 = self.ws[l + 1]
+            # print(np.shape(delta_l_pluss_1.dot(weight_l_pluss_1.T)))
+            delta = (delta_l_pluss_1.dot(weight_l_pluss_1.T)) * derivative_zl
+            deltas[l] = delta
+
+        # Set the gradients
+        # Note that the indexing of self.activations includes the input layer, dividing by X.shape[0] to get the average
+        for l in range(L + 1):
+            grad = self.activations[l].T.dot(deltas[l])/X.shape[0]
+            # print('gradshape =', np.shape(grad))
+            self.grads.append(grad)
         for grad, w in zip(self.grads, self.ws):
             assert grad.shape == w.shape,\
                 f"Expected the same shape. Grad shape: {grad.shape}, w: {w.shape}."
 
-    def softmax_prime(self, z: np.ndarray) -> np.ndarray:
-        pass
+    # def softmax_prime(self, z: np.ndarray) -> np.ndarray:
+    #     pass
 
     def zero_grad(self) -> None:
         self.grads = [None for i in range(len(self.ws))]
@@ -158,6 +193,7 @@ def gradient_approximation_test(
     """
     epsilon = 1e-3
     for layer_idx, w in enumerate(model.ws):
+        # print('layer_idx starting:', layer_idx)
         for i in range(w.shape[0]):
             for j in range(w.shape[1]):
                 orig = model.ws[layer_idx][i, j].copy()
@@ -194,6 +230,8 @@ def main():
     # print(np.shape(X_train))
     mu = np.mean(X_train)
     std = np.std(X_train)
+    print(mu)
+    print(std)
     X_train = pre_process_images(X_train, mu, std)
     Y_train = one_hot_encode(Y_train, 10)
     assert X_train.shape[1] == 785, \
@@ -211,6 +249,8 @@ def main():
     Y_train = Y_train[:100]
     for layer_idx, w in enumerate(model.ws):
         model.ws[layer_idx] = np.random.uniform(-1, 1, size=w.shape)
+    # for grad in model.grads:
+    #     print('shape of grad: ', np.shape(grad))
 
     gradient_approximation_test(model, X_train, Y_train)
 

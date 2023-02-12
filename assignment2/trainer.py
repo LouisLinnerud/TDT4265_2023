@@ -95,11 +95,11 @@ class BaseTrainer:
                     if not stop:
                         if len(validation_losses) == 0:  # Only relevant the very first time
                             validation_losses.append(val_loss)
-                            lowest_weight = self.model.w
+                            lowest_weight = self.model.ws
                         else:
                             if val_loss < validation_losses[0]:
                                 validation_losses = [val_loss]
-                                lowest_weight = self.model.w
+                                lowest_weight = self.model.ws
                             else:
                                 validation_losses.append(val_loss)
                                 if len(validation_losses) == 50:
@@ -112,5 +112,5 @@ class BaseTrainer:
 
                 global_step += 1
         # if not 'w_min' in val_history.keys():
-        val_history['w_min'] = self.model.w
+        val_history['w_min'] = self.model.ws
         return train_history, val_history
