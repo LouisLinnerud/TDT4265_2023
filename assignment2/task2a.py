@@ -53,6 +53,8 @@ class SoftmaxModel:
         print('Number of layers =', self.number_of_layers)
         self.use_improved_sigmoid = use_improved_sigmoid
         self.use_relu = use_relu
+        if use_relu:
+            self.use_improved_sigmoid = False
         self.use_improved_weight_init = use_improved_weight_init
 
         # Define number of output nodes
@@ -98,6 +100,8 @@ class SoftmaxModel:
             self.zs.append(z)
             if self.use_improved_sigmoid:
                 activation = self.improved_sigmoid(z)
+            elif self.use_relu:
+                activation = self.relu(z)
             else:
                 activation = self.sigmoid(z)
             self.activations.append(activation)
@@ -114,6 +118,12 @@ class SoftmaxModel:
 
     def sigmoid(self, z: np.ndarray) -> np.ndarray:
         return 1 / (1 + np.exp(-z))
+
+    def relu(self, z: np.ndarray) -> np.ndarray:
+        return max(0.0, z)
+
+    def relu_prime(self, z: np.ndarray) -> np.ndarray:
+        return np.where(z > 0, 1, 0)
 
     def improved_sigmoid(self, z: np.ndarray) -> np.ndarray:
         return 1.7159*np.tanh(2./3.*z)
@@ -165,6 +175,8 @@ class SoftmaxModel:
             # get sigmoid primed of z at the current layer
             if self.improved_sigmoid:
                 derivative_zl = self.improved_sigmoid_prime(zl)
+            elif self.use_relu:
+                derivative_zl = self.relu_prime(zl)
             else:
                 derivative_zl = self.sigmoid_prime(zl)
             # print('der shape:', np.shape(derivative_zl))

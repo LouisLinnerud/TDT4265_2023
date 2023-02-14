@@ -9,7 +9,7 @@ def main():
     num_epochs = 50
     learning_rate = .1
     batch_size = 32
-    neurons_per_layer = [128, 10]
+    neurons_per_layer = [64, 10]
     momentum_gamma = .9  # Task 3 hyperparameter
     shuffle_data = True
 
@@ -27,31 +27,58 @@ def main():
 
     plt.figure(figsize=(20, 12))
 
-    for i in range(4):
-        if i != 3:
-            continue
+    # Task 3 code
+    # for i in range(4):
+    #     if i != 3:
+    #         continue
+    #     if i == 0:
+    #         val_legend = "Task 2 Model Validation loss"
+    #         accuracy_val_legend = "Task 2 model validation accuracy"
+    #         accuracy_tra_legend = "Task 2 model training accuracy"
+    #     elif i == 1:
+    #         use_improved_weight_init = True
+    #         val_legend = "3a) Validation loss"
+    #         accuracy_val_legend = "3a) model validation accuracy"
+    #         accuracy_tra_legend = "3a) model training accuracy"
+    #     elif i == 2:
+    #         use_improved_sigmoid = True
+    #         val_legend = "3b) Validation loss"
+    #         accuracy_val_legend = "3b) model validation accuracy"
+    #         accuracy_tra_legend = "3b) model training accuracy"
+    #     elif i == 3:
+    #         learning_rate = 0.02
+    #         use_improved_weight_init = True
+    #         use_improved_sigmoid = True
+    #         use_momentum = True
+    #         val_legend = "3c) Validation loss"
+    #         accuracy_val_legend = "3c) model validation accuracy"
+    #         accuracy_tra_legend = "3c) model training accuracy"
+
+    # Task 4 d/e
+    for i in range(3):
+        print('TRAINING NETWORK', i), '---------'
         if i == 0:
-            val_legend = "Task 2 Model Validation loss"
-            accuracy_val_legend = "Task 2 model validation accuracy"
-            accuracy_tra_legend = "Task 2 model training accuracy"
-        elif i == 1:
-            use_improved_weight_init = True
-            val_legend = "3a) Validation loss"
-            accuracy_val_legend = "3a) model validation accuracy"
-            accuracy_tra_legend = "3a) model training accuracy"
-        elif i == 2:
-            use_improved_sigmoid = True
-            val_legend = "3b) Validation loss"
-            accuracy_val_legend = "3b) model validation accuracy"
-            accuracy_tra_legend = "3b) model training accuracy"
-        elif i == 3:
             learning_rate = 0.02
             use_improved_weight_init = True
             use_improved_sigmoid = True
             use_momentum = True
-            val_legend = "4b) Validation loss"
-            accuracy_val_legend = "4b) model validation accuracy"
-            accuracy_tra_legend = "4b) model training accuracy"
+            val_legend = "Task 3. 1 HL(64) validation loss"
+            tra_legend = "Task 3. 1 HL(64) training loss"
+            accuracy_val_legend = "Task 3. 1 HL(64) validation accuracy"
+            accuracy_tra_legend = "Task 3. 1 HL(64) training accuracy"
+        elif i == 1:
+            neurons_per_layer = [60, 60, 10]
+            val_legend = "Task 4d. 2 HL(60) Validation loss"
+            tra_legend = "Task 4d. 2 HL(60) training loss"
+            accuracy_val_legend = "Task 4d. 2 HL(60) model validation accuracy"
+            accuracy_tra_legend = "Task 4d. 2 HL(60) model training accuracy"
+        elif i == 2:
+            neurons_per_layer = [64]*10
+            neurons_per_layer.append(10)
+            val_legend = "Task 4e. 10 HL(64) Validation loss"
+            tra_legend = "Task 4e. 10 HL(64) training loss"
+            accuracy_val_legend = "Task 4e. 10 HL(64) model validation accuracy"
+            accuracy_tra_legend = "Task 4e. 10 HL(64) model training accuracy"
 
         model = SoftmaxModel(
             neurons_per_layer,
@@ -75,6 +102,8 @@ def main():
         plt.subplot(1, 2, 1)
         utils.plot_loss(val_history["loss"],
                         val_legend)
+        utils.plot_loss(train_history["loss"],
+                        tra_legend)
         plt.subplot(1, 2, 2)
         utils.plot_loss(val_history["accuracy"], accuracy_val_legend)
         utils.plot_loss(train_history["accuracy"], accuracy_tra_legend)
@@ -89,7 +118,7 @@ def main():
     plt.xlabel("Number of Training Steps")
     plt.ylabel("Accuracy")
     plt.legend()
-    plt.savefig('task4b.png')
+    plt.savefig('task4e.png')
     plt.show()
 
 
