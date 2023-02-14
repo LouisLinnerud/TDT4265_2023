@@ -120,10 +120,10 @@ class SoftmaxModel:
         return 1 / (1 + np.exp(-z))
 
     def relu(self, z: np.ndarray) -> np.ndarray:
-        return max(0.0, z)
+        return np.maximum(0, z)
 
     def relu_prime(self, z: np.ndarray) -> np.ndarray:
-        return np.where(z > 0, 1, 0)
+        return np.where(z > 0, 1.0, 0)
 
     def improved_sigmoid(self, z: np.ndarray) -> np.ndarray:
         return 1.7159*np.tanh(2./3.*z)

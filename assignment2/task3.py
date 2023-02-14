@@ -55,17 +55,27 @@ def main():
     #         accuracy_tra_legend = "3c) model training accuracy"
 
     # Task 4 d/e
-    for i in range(3):
+    for i in range(2):
         print('TRAINING NETWORK', i), '---------'
         if i == 0:
             learning_rate = 0.02
             use_improved_weight_init = True
             use_improved_sigmoid = True
             use_momentum = True
-            val_legend = "Task 3. 1 HL(64) validation loss"
+            val_legend = "Task 3. 1 HL(64)  validation loss"
             tra_legend = "Task 3. 1 HL(64) training loss"
             accuracy_val_legend = "Task 3. 1 HL(64) validation accuracy"
             accuracy_tra_legend = "Task 3. 1 HL(64) training accuracy"
+        elif i == 1:
+            learning_rate = 0.02
+            use_improved_weight_init = True
+            use_improved_sigmoid = False
+            use_relu = True
+            use_momentum = True
+            val_legend = "Task 3. 1 HL(64)  validation loss -ReLu"
+            tra_legend = "Task 3. 1 HL(64) training loss -ReLu"
+            accuracy_val_legend = "Task 3. 1 HL(64) validation accuracy -ReLu"
+            accuracy_tra_legend = "Task 3. 1 HL(64) training accuracy -ReLu"
         elif i == 1:
             neurons_per_layer = [60, 60, 10]
             val_legend = "Task 4d. 2 HL(60) Validation loss"
@@ -118,7 +128,7 @@ def main():
     plt.xlabel("Number of Training Steps")
     plt.ylabel("Accuracy")
     plt.legend()
-    plt.savefig('task4e.png')
+    plt.savefig('task4f2.png')
     plt.show()
 
 
