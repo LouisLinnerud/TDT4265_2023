@@ -9,7 +9,7 @@ def main():
     num_epochs = 50
     learning_rate = .1
     batch_size = 32
-    neurons_per_layer = [64, 10]
+    neurons_per_layer = [128, 10]
     momentum_gamma = .9  # Task 3 hyperparameter
     shuffle_data = True
 
@@ -46,10 +46,12 @@ def main():
             accuracy_tra_legend = "3b) model training accuracy"
         elif i == 3:
             learning_rate = 0.02
+            use_improved_weight_init = True
+            use_improved_sigmoid = True
             use_momentum = True
-            val_legend = "3c) Validation loss"
-            accuracy_val_legend = "3c) model validation accuracy"
-            accuracy_tra_legend = "3c) model training accuracy"
+            val_legend = "4b) Validation loss"
+            accuracy_val_legend = "4b) model validation accuracy"
+            accuracy_tra_legend = "4b) model training accuracy"
 
         model = SoftmaxModel(
             neurons_per_layer,
@@ -87,7 +89,7 @@ def main():
     plt.xlabel("Number of Training Steps")
     plt.ylabel("Accuracy")
     plt.legend()
-    plt.savefig('task4a.png')
+    plt.savefig('task4b.png')
     plt.show()
 
 
