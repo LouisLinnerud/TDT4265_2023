@@ -6,3 +6,4 @@ task2b_binary_train_loss.png
 task2e_train_accuracy_shuffle_difference.png
 task2e_train_loss_with_shuffle.png
 .gitignore
+DLVENV/
