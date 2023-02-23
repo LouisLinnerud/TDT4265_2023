@@ -104,13 +104,12 @@ class ExampleModel(nn.Module):
         # TODO: Implement this function (Task  2a)
         batch_size = x.shape[0]
         x = self.feature_extractor(x)
-        x = x.view(-1, batch_size) # self.number_output_features instead??
+        x = x.view(-1,self.num_output_features) # view(batch_size,-1) instead??
         x = self.classifier(x)
         
         out = x
 
         expected_shape = (batch_size, self.num_classes)
-        
         
         assert out.shape == (batch_size, self.num_classes),\
             f"Expected output of forward pass to be: {expected_shape}, but got: {out.shape}"

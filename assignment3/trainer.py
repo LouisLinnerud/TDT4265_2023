@@ -37,12 +37,12 @@ def compute_loss_and_accuracy(
             accuracy+= (pred == Y_batch).float().mean()
             number_of_batches+=1
             # Compute Loss and Accuracy
-    #print("##\n##\n                                           heihei\n##\n##")
+
     average_loss = average_loss/number_of_batches
     accuracy = accuracy/number_of_batches
     
             # Predicted class is the max index over the column dimension
-    return average_loss.detach().cpu(), accuracy.detach().cpu()
+    return average_loss, accuracy
 
 
 class Trainer:
