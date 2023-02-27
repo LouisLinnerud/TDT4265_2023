@@ -5,7 +5,7 @@ from torch import nn
 from dataloaders import load_cifar10
 from trainer import Trainer
 
-
+# The same code can be foudn in "task2_train.ipynb"
 class ExampleModel(nn.Module):
 
     def __init__(self,
@@ -154,6 +154,12 @@ def main():
     )
     trainer.train()
     create_plots(trainer, "task2")
+    training_loss, training_accuracy = compute_loss_and_accuracy(trainer.dataloader_train, trainer.model, trainer.loss_criterion)
+    validation_loss, validation_accuracy = compute_loss_and_accuracy(trainer.dataloader_val, trainer.model, trainer.loss_criterion)
+    test_loss, test_accuracy = compute_loss_and_accuracy(trainer.dataloader_test, trainer.model, trainer.loss_criterion)
+    print(f"  Training: Accuracy: {training_accuracy}, Loss: {training_loss}")
+    print(f"Validation: Accuracy: {validation_accuracy}, Loss: {validation_loss}")
+    print(f"      Test: Accuracy: {test_accuracy}, Loss: {test_loss}")
 
 if __name__ == "__main__":
     main()
