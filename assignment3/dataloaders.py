@@ -1,3 +1,4 @@
+import torchvision
 from torchvision import transforms, datasets
 from torch.utils.data.sampler import SubsetRandomSampler
 import torch

@@ -104,7 +104,7 @@ class ExampleModel(nn.Module):
         # TODO: Implement this function (Task  2a)
         batch_size = x.shape[0]
         x = self.feature_extractor(x)
-        x = x.view(-1,self.num_output_features) # view(batch_size,-1) instead??
+        x = x.view(-1,self.num_output_features)
         x = self.classifier(x)
         
         out = x
@@ -140,7 +140,7 @@ def main():
     utils.set_seed(0)
     epochs = 10
     batch_size = 64
-    learning_rate = 5e-2
+    learning_rate = 5e-2 #tweaked from 1e-2 to 5e-2 because it takes to much time to run it on my device with 1e-2
     early_stop_count = 4
     dataloaders = load_cifar10(batch_size)
     model = ExampleModel(image_channels=3, num_classes=10)

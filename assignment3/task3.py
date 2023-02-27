@@ -123,7 +123,7 @@ def main():
     utils.set_seed(0)
     epochs = 10
     batch_size = 64
-    learning_rate = 5e-2
+    learning_rate = 2e-2
     early_stop_count = 4
     dataloaders = load_cifar10(batch_size)
     model = Task3Model(image_channels=3, num_classes=10)
@@ -136,8 +136,7 @@ def main():
         dataloaders
     )
     trainer.train()
-    create_plots(trainer, "task2")
-    print("task 3 ran")
+    create_plots(trainer, "task3")
 
 if __name__ == "__main__":
     main()
