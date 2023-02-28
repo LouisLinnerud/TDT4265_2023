@@ -75,9 +75,11 @@ class Trainer:
         if optimizer == "sgd":
             self.optimizer = torch.optim.SGD(self.model.parameters(),
                                             self.learning_rate)
+                                            #weight_decay=0.001)
         else:
             self.optimizer = torch.optim.Adam(self.model.parameters(),
-                                            self.learning_rate)
+                                            self.learning_rate,
+                                            weight_decay=0.001)
 
 
         # Load our dataset
