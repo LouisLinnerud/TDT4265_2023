@@ -5,7 +5,7 @@ from torch import nn
 from dataloaders import load_cifar10
 from trainer import Trainer
 
-
+# The same code can be foudn in "task2_train.ipynb"
 class ExampleModel(nn.Module):
 
     def __init__(self,
@@ -23,23 +23,76 @@ class ExampleModel(nn.Module):
         self.num_classes = num_classes
         # Define the convolutional layers
         self.feature_extractor = nn.Sequential(
+            
+            # __ Layer 1 __
+            #Conv2d 32 filters 
             nn.Conv2d(
                 in_channels=image_channels,
                 out_channels=num_filters,
                 kernel_size=5,
                 stride=1,
                 padding=2
+            ),
+            #Activation ReLU
+            nn.ReLU(),
+            #MaxPool2D 2x2
+            nn.MaxPool2d(
+                [2,2],
+                stride=2
+            ), 
+            
+            # __ Layer 2 __
+            #Conv2d 64 filters 
+            nn.Conv2d(
+                in_channels=num_filters,
+                out_channels=64,
+                kernel_size=5,
+                stride=1,
+                padding=2
+            ),
+            #Activation ReLU
+            nn.ReLU(),
+            #MaxPool2D 2x2
+            nn.MaxPool2d(
+                [2,2],
+                stride=2
+            ),
+            
+            # __ Layer 3 __
+            #Conv2d 128 filters
+            nn.Conv2d(
+                in_channels=64,
+                out_channels=128,
+                kernel_size=5,
+                stride=1,
+                padding=2
+            ),
+            #Activation ReLU
+            nn.ReLU(),
+            #MaxPool2D 2x2
+            nn.MaxPool2d(
+                [2,2],
+                stride=2
             )
         )
+
         # The output of feature_extractor will be [batch_size, num_filters, 16, 16]
-        self.num_output_features = 32*32*32
+        #self.num_output_features = 32*32*32
+        self.num_output_features = 128*4*4
+        self.num_hidden_units = 64
         # Initialize our last fully connected layer
         # Inputs all extracted features from the convolutional layers
         # Outputs num_classes predictions, 1 for each class.
         # There is no need for softmax activation function, as this is
         # included with nn.CrossEntropyLoss
+        # __ Layer 4 __
         self.classifier = nn.Sequential(
-            nn.Linear(self.num_output_features, num_classes),
+            #Fully connected 64 
+            nn.Linear(self.num_output_features, self.num_hidden_units),
+            #Activation ReLU
+            nn.ReLU(),
+            #Fully connected 10
+            nn.Linear(self.num_hidden_units, num_classes)
         )
 
     def forward(self, x):
@@ -50,8 +103,14 @@ class ExampleModel(nn.Module):
         """
         # TODO: Implement this function (Task  2a)
         batch_size = x.shape[0]
+        x = self.feature_extractor(x)
+        x = x.view(-1,self.num_output_features)
+        x = self.classifier(x)
+        
         out = x
+
         expected_shape = (batch_size, self.num_classes)
+        
         assert out.shape == (batch_size, self.num_classes),\
             f"Expected output of forward pass to be: {expected_shape}, but got: {out.shape}"
         return out
@@ -81,7 +140,7 @@ def main():
     utils.set_seed(0)
     epochs = 10
     batch_size = 64
-    learning_rate = 5e-2
+    learning_rate = 5e-2 #tweaked from 1e-2 to 5e-2 because it takes to much time to run it on my device with 1e-2
     early_stop_count = 4
     dataloaders = load_cifar10(batch_size)
     model = ExampleModel(image_channels=3, num_classes=10)
@@ -95,6 +154,12 @@ def main():
     )
     trainer.train()
     create_plots(trainer, "task2")
+    training_loss, training_accuracy = compute_loss_and_accuracy(trainer.dataloader_train, trainer.model, trainer.loss_criterion)
+    validation_loss, validation_accuracy = compute_loss_and_accuracy(trainer.dataloader_val, trainer.model, trainer.loss_criterion)
+    test_loss, test_accuracy = compute_loss_and_accuracy(trainer.dataloader_test, trainer.model, trainer.loss_criterion)
+    print(f"  Training: Accuracy: {training_accuracy}, Loss: {training_loss}")
+    print(f"Validation: Accuracy: {validation_accuracy}, Loss: {validation_loss}")
+    print(f"      Test: Accuracy: {test_accuracy}, Loss: {test_loss}")
 
 if __name__ == "__main__":
     main()
