@@ -22,6 +22,7 @@ def compute_loss_and_accuracy(
     """
     average_loss = 0
     accuracy = 0
+    number_of_batches=0
     # TODO: Implement this function (Task  2a)
     with torch.no_grad():
         for (X_batch, Y_batch) in dataloader:
@@ -30,9 +31,16 @@ def compute_loss_and_accuracy(
             Y_batch = utils.to_cuda(Y_batch)
             # Forward pass the images through our model
             output_probs = model(X_batch)
-
+            
+            average_loss += loss_criterion(output_probs,Y_batch)
+            _ , pred = output_probs.data.max(1)
+            accuracy+= (pred == Y_batch).float().mean()
+            number_of_batches+=1
             # Compute Loss and Accuracy
 
+    average_loss = average_loss/number_of_batches
+    accuracy = accuracy/number_of_batches
+    
             # Predicted class is the max index over the column dimension
     return average_loss, accuracy
 
@@ -45,7 +53,8 @@ class Trainer:
                  early_stop_count: int,
                  epochs: int,
                  model: torch.nn.Module,
-                 dataloaders: typing.List[torch.utils.data.DataLoader]):
+                 dataloaders: typing.List[torch.utils.data.DataLoader],
+                 optimizer = "sgd"):
         """
             Initialize our trainer class.
         """
@@ -63,8 +72,15 @@ class Trainer:
         print(self.model)
 
         # Define our optimizer. SGD = Stochastich Gradient Descent
-        self.optimizer = torch.optim.SGD(self.model.parameters(),
-                                         self.learning_rate)
+        if optimizer == "sgd":
+            self.optimizer = torch.optim.SGD(self.model.parameters(),
+                                            self.learning_rate,
+                                            weight_decay=0.01)
+        else:
+            self.optimizer = torch.optim.Adam(self.model.parameters(),
+                                            self.learning_rate,
+                                            weight_decay=0.001)
+
 
         # Load our dataset
         self.dataloader_train, self.dataloader_val, self.dataloader_test = dataloaders

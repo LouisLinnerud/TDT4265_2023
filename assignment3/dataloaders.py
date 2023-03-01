@@ -1,3 +1,4 @@
+import torchvision
 from torchvision import transforms, datasets
 from torch.utils.data.sampler import SubsetRandomSampler
 import torch
@@ -23,6 +24,9 @@ def load_cifar10(batch_size: int, validation_fraction: float = 0.1
     # validation!
     transform_train = transforms.Compose([
         transforms.ToTensor(),
+        transforms.RandomHorizontalFlip(0.5),
+        #transforms.RandomVerticalFlip(0.5),
+        #transforms.RandomRotation(30),
         transforms.Normalize(mean, std),
     ])
     transform_test = transforms.Compose([
