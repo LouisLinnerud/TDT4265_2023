@@ -18,7 +18,7 @@ You can run code in python3 by using, `python3 my_program.py`.
 If you want to install additional packages in your environment, install it locally. For example:
 
 ```bash
-pip3 --user install package_name
+pip3 install --user package_name
 ```
 
 To get a list of already installed packages, use:
