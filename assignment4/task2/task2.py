@@ -16,11 +16,22 @@ def calculate_iou(prediction_box, gt_box):
             float: value of the intersection of union for the two boxes.
     """
     # YOUR CODE HERE
-
     # Compute intersection
+    intersection = [max(prediction_box[0],gt_box[0]),
+                    max(prediction_box[1],gt_box[1]),
+                    min(prediction_box[2],gt_box[2]),
+                    min(prediction_box[3],gt_box[3])]
 
     # Compute union
-    iou = 0
+    prediction_area = (prediction_box[2] - prediction_box[0]) * (prediction_box[3] - prediction_box[1])
+    gt_area = (gt_box[2] - gt_box[0]) * (gt_box[3] - gt_box[1])
+    intersection_area = (intersection[2] - intersection[0]) * (intersection[3] - intersection[1])
+   
+    if intersection_area < 0:
+        return 0.0
+        
+    iou = intersection_area / (prediction_area + gt_area - intersection_area)
+    
     #END OF YOUR CODE
 
     assert iou >= 0 and iou <= 1
@@ -83,7 +94,7 @@ def get_all_box_matches(prediction_boxes, gt_boxes, iou_threshold):
             Each row includes [xmin, ymin, xmax, ymax]
     """
     # YOUR CODE HERE
-
+    
     # Find all possible matches with a IoU >= iou threshold
 
 
