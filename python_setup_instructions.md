@@ -51,7 +51,7 @@ conda install pytorch torchvision cpuonly -c pytorch
 
 You can also follow the tutorial on [the pytorch website](https://pytorch.org/get-started/locally/).
 
-**Note**, if you have a PC with NVIDIA GPU (Linux or windows), you need to install CUDA and CUDNN first if you want to utilize your GPU. Installing CUDA and CUDNN is outside of the scope for this tutorial.
+**Note**, By default, pytorch is installed with cpu only version. If you have a PC with NVIDIA GPU (Linux or windows) then you need to install pytorch and torchvision with cuda support. To do that, follow tutorial on the pytorch website mentioned above. 
 
 Install tqdm.
 
