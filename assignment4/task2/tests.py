@@ -211,8 +211,8 @@ def test_mean_average_precision():
 
 if __name__ == "__main__":
     test_iou()
-    #test_precision()
-    #test_recall()
+    test_precision()
+    test_recall()
     #test_get_all_box_matches()
     #test_calculate_individual_image_result()
     #test_calculate_precision_recall_all_images()

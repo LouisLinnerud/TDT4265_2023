@@ -30,8 +30,8 @@ def calculate_iou(prediction_box, gt_box):
     if intersection_area < 0:
         return 0.0
         
-    iou = intersection_area / (prediction_area + gt_area - intersection_area)
-    
+    iou = intersection_area / (prediction_area + gt_area - intersection_area + 1e-16) #1e-16 for numerical stability
+    # information on how to calculate found here: https://www.youtube.com/watch?v=XXYG5ZWtjj0&list=PLhhyoLH6Ijfw0TpCTVTNk42NN08H6UvNq&index=2&ab_channel=AladdinPersson
     #END OF YOUR CODE
 
     assert iou >= 0 and iou <= 1
@@ -50,10 +50,13 @@ def calculate_precision(num_tp, num_fp, num_fn):
         float: value of precision
     """
     # YOUR CODE HERE
-
+    if num_tp+num_fp == 0:
+        return 1
+    precision = num_tp / (num_tp + num_fp)
+    return precision
     #END OF YOUR CODE
 
-    raise NotImplementedError
+    #raise NotImplementedError
 
 
 def calculate_recall(num_tp, num_fp, num_fn):
@@ -67,10 +70,13 @@ def calculate_recall(num_tp, num_fp, num_fn):
         float: value of recall
     """
     # YOUR CODE HERE
-
+    if num_tp+num_fn == 0:
+        return 0
+    recall = num_tp / (num_tp + num_fn)
+    return recall
     #END OF YOUR CODE
 
-    raise NotImplementedError
+    #raise NotImplementedError
 
 
 def get_all_box_matches(prediction_boxes, gt_boxes, iou_threshold):
