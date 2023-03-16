@@ -23,16 +23,18 @@ def calculate_iou(prediction_box, gt_box):
                     min(prediction_box[3],gt_box[3])]
 
     # Compute union
+    
+    if intersection[0] > intersection[2] or intersection[1] > intersection[3]:
+        return 0.0
+    
     prediction_area = (prediction_box[2] - prediction_box[0]) * (prediction_box[3] - prediction_box[1])
     gt_area = (gt_box[2] - gt_box[0]) * (gt_box[3] - gt_box[1])
     intersection_area = (intersection[2] - intersection[0]) * (intersection[3] - intersection[1])
-   
-    if intersection_area < 0:
-        return 0.0
         
     iou = intersection_area / (prediction_area + gt_area - intersection_area + 1e-16) #1e-16 for numerical stability
     # information on how to calculate found here: https://www.youtube.com/watch?v=XXYG5ZWtjj0&list=PLhhyoLH6Ijfw0TpCTVTNk42NN08H6UvNq&index=2&ab_channel=AladdinPersson
     #END OF YOUR CODE
+    
 
     assert iou >= 0 and iou <= 1
     return iou
@@ -106,12 +108,13 @@ def get_all_box_matches(prediction_boxes, gt_boxes, iou_threshold):
     for i in range(len(prediction_boxes)):
         for j in range(len(gt_boxes)):
             iou = calculate_iou(prediction_boxes[i],gt_boxes[j])
-
-            #if iou > iou_threshold:
-            if not i in matched_boxes:
-                matched_boxes[i] = []
             
-            matched_boxes[i].append([iou, j])
+
+            if iou >= iou_threshold:
+                
+                if not i in matched_boxes:
+                    matched_boxes[i] = []
+                matched_boxes[i].append([iou, j])
            
 
     
@@ -148,11 +151,17 @@ def calculate_individual_image_result(prediction_boxes, gt_boxes, iou_threshold)
             {"true_pos": int, "false_pos": int, false_neg": int}
     """
     # YOUR CODE HERE
-
+    matched_pred, matched_gt = get_all_box_matches(prediction_boxes, gt_boxes, iou_threshold)
+    FN = len(gt_boxes)-len(matched_gt)
+    FP = len(prediction_boxes) - len(matched_gt)
+    TP = len(matched_gt)
+    
+    
+    
 
     #END OF YOUR CODE
 
-    raise NotImplementedError
+    return {"true_pos": TP, "false_pos": FP, "false_neg": FN}
 
 
 def calculate_precision_recall_all_images(

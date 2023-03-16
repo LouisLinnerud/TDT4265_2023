@@ -138,7 +138,6 @@ def test_calculate_individual_image_result():
     ans2 = 2
     ans3 = 2
     res = calculate_individual_image_result(b1, b2, 0.5)
-
     assert res["true_pos"] == ans1, "Expected {}, got: {}".format(
         ans1, res["true_pos"])
     assert res["false_pos"] == ans2, "Expected {}, got: {}".format(
@@ -214,7 +213,7 @@ if __name__ == "__main__":
     test_precision()
     test_recall()
     test_get_all_box_matches()
-    #test_calculate_individual_image_result()
+    test_calculate_individual_image_result()
     #test_calculate_precision_recall_all_images()
     #test_get_precision_recall_curve()
     #test_mean_average_precision()
