@@ -16,11 +16,22 @@ def calculate_iou(prediction_box, gt_box):
             float: value of the intersection of union for the two boxes.
     """
     # YOUR CODE HERE
-
     # Compute intersection
+    intersection = [max(prediction_box[0],gt_box[0]),
+                    max(prediction_box[1],gt_box[1]),
+                    min(prediction_box[2],gt_box[2]),
+                    min(prediction_box[3],gt_box[3])]
 
     # Compute union
-    iou = 0
+    prediction_area = (prediction_box[2] - prediction_box[0]) * (prediction_box[3] - prediction_box[1])
+    gt_area = (gt_box[2] - gt_box[0]) * (gt_box[3] - gt_box[1])
+    intersection_area = (intersection[2] - intersection[0]) * (intersection[3] - intersection[1])
+   
+    if intersection_area < 0:
+        return 0.0
+        
+    iou = intersection_area / (prediction_area + gt_area - intersection_area + 1e-16) #1e-16 for numerical stability
+    # information on how to calculate found here: https://www.youtube.com/watch?v=XXYG5ZWtjj0&list=PLhhyoLH6Ijfw0TpCTVTNk42NN08H6UvNq&index=2&ab_channel=AladdinPersson
     #END OF YOUR CODE
 
     assert iou >= 0 and iou <= 1
@@ -39,10 +50,13 @@ def calculate_precision(num_tp, num_fp, num_fn):
         float: value of precision
     """
     # YOUR CODE HERE
-
+    if num_tp+num_fp == 0:
+        return 1
+    precision = num_tp / (num_tp + num_fp)
+    return precision
     #END OF YOUR CODE
 
-    raise NotImplementedError
+    #raise NotImplementedError
 
 
 def calculate_recall(num_tp, num_fp, num_fn):
@@ -56,10 +70,13 @@ def calculate_recall(num_tp, num_fp, num_fn):
         float: value of recall
     """
     # YOUR CODE HERE
-
+    if num_tp+num_fn == 0:
+        return 0
+    recall = num_tp / (num_tp + num_fn)
+    return recall
     #END OF YOUR CODE
 
-    raise NotImplementedError
+    #raise NotImplementedError
 
 
 def get_all_box_matches(prediction_boxes, gt_boxes, iou_threshold):
@@ -83,7 +100,7 @@ def get_all_box_matches(prediction_boxes, gt_boxes, iou_threshold):
             Each row includes [xmin, ymin, xmax, ymax]
     """
     # YOUR CODE HERE
-
+    
     # Find all possible matches with a IoU >= iou threshold
 
 
