@@ -102,15 +102,30 @@ def get_all_box_matches(prediction_boxes, gt_boxes, iou_threshold):
     # YOUR CODE HERE
     
     # Find all possible matches with a IoU >= iou threshold
+    matched_boxes = {}
+    for i in range(len(prediction_boxes)):
+        for j in range(len(gt_boxes)):
+            iou = calculate_iou(prediction_boxes[i],gt_boxes[j])
 
+            #if iou > iou_threshold:
+            if not i in matched_boxes:
+                matched_boxes[i] = []
+            
+            matched_boxes[i].append([iou, j])
+           
 
+    
+    corresponding_gt = []
     # Sort all matches on IoU in descending order
-
     # Find all matches with the highest IoU threshold
+    for pred in matched_boxes.keys():
+        matched_boxes[pred].sort(reverse=True,key=lambda x: x[0])
+        corresponding_gt.append(gt_boxes[matched_boxes[pred][0][1]])
+    
+    corresponding_gt = np.array(corresponding_gt)
+    #print(prediction_boxes, corresponding_truths)
 
-
-
-    return np.array([]), np.array([])
+    return prediction_boxes, corresponding_gt
     #END OF YOUR CODE
 
 

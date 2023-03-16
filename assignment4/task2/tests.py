@@ -89,6 +89,7 @@ def test_get_all_box_matches():
     b2 = np.array([
         [0, 0, 1, 1]
     ])
+
     res1, res2 = get_all_box_matches(b1, b2, 0.5)
     assert np.all(res1 == b1)
     assert np.all(res2 == b2)
@@ -111,7 +112,6 @@ def test_get_all_box_matches():
     res1, res2 = get_all_box_matches(b1, b2, 1)
     assert np.all(res1 == b1)
     assert np.all(res2 == b2[1:2])
-
     res1, res2 = get_all_box_matches(np.array([]), np.array([]), 0.5)
     assert res1.size == 0
     assert res2.size == 0
@@ -213,7 +213,7 @@ if __name__ == "__main__":
     test_iou()
     test_precision()
     test_recall()
-    #test_get_all_box_matches()
+    test_get_all_box_matches()
     #test_calculate_individual_image_result()
     #test_calculate_precision_recall_all_images()
     #test_get_precision_recall_curve()
